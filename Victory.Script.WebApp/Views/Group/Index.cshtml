@@ -1,0 +1,871 @@
+﻿@section Pageheader{
+    <h1>
+        <small> 分组管理 </small>
+
+    </h1>
+    <ol class="breadcrumb">
+        <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
+        <li class="active">Group</li>
+    </ol>
+
+}
+
+
+
+@section Htmlhead{
+
+
+    <style>
+
+        .custom-tree-node {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 14px;
+            padding-right: 8px;
+        }
+    </style>
+
+
+
+}
+
+
+
+
+
+<section class="content" id="tab">
+
+
+    <div class="row" style="margin-top:10px">
+
+        <!-- /.col -->
+        <div class="col-md-4">
+            <div class="box box-primary">
+                <div class="box-header">
+                    <h3 class="box-title">用户组</h3>
+
+                    <div class="box-tools">
+
+                        <div class="input-group input-group-sm  col-md-1 pull-right ml-1" style="margin-left:10px;">
+
+                            <button type="button" class="btn btn-sm pull-right" @@click="AddGroup()" id="btn_Search">   <i class="fa fa-align-justify"></i> 创建根组织</button>
+                        </div>
+
+                    </div>
+                </div>
+                <!-- /.box-header -->
+                <div class="box-body table-responsive no-padding ">
+                    <div class="custom-tree-container">
+                        <div class="block">
+
+                            <el-tree :data="grouplist"
+                                     :props="defaultProps"
+                                     node-key="id"
+                                     default-expand-all
+                                     :expand-on-click-node="false"
+                                     @@node-click="handleNodeClick">
+
+                                <span class="custom-tree-node" slot-scope="{ node, data }">
+                                    <span style="font-size:15px">{{ node.label }}</span>
+                                    <span>
+                                        <small class="label bg-blue" @@click="AddGroup(node, data)">添加</small>
+                                        &nbsp; &nbsp;
+                                        <small class="label bg-green" @@click="ShowGroupRole(node, data)">角色</small>
+                                        &nbsp; &nbsp;
+                                        <small class="label bg-yellow" @@click="UpdateGroup(node, data)">编辑</small>
+                                        &nbsp; &nbsp;
+                                        <small class="label  bg-red" @@click="DelGroup(node, data)">删除</small>
+                                    </span>
+                                </span>
+
+
+                            </el-tree>
+
+
+                        </div>
+                    </div>
+
+                </div>
+                <!-- /.box-body -->
+
+
+                <div class="box-footer no-padding">
+                    <div class="card-footer clearfix pull-left" style="margin-left:20px;margin-top:30px;margin-bottom:30px">
+
+                    </div>
+
+
+
+                    <!-- /.pull-right -->
+                </div>
+            </div>
+        </div>
+
+
+
+
+        <!-- /.col -->
+        <div class="col-md-8">
+            <div class="box box-success">
+                <div class="box-header">
+                    <h3 class="box-title">{{checkGroup.Group_Name}}</h3>
+
+                    <div class="box-tools">
+
+                        <div class="input-group input-group-sm  col-md-1 pull-right ml-1" style="margin-left:10px;">
+                            <button type="button" class="btn btn-sm pull-right bg-red" @@click="BatchDeletePeople()">  <i class="fa fa-trash-o"></i> 批量移除</button>
+                        </div>
+
+
+                        <div class="input-group input-group-sm  col-md-1 pull-right ml-1" style="margin-left:10px;">
+                            <button type="button" class="btn btn-sm pull-right bg-blue" @@click="ShowAddPeople()">  <i class="fa fa-upload"></i> 添加组员</button>
+                        </div>
+
+                        <div class="input-group input-group-sm  col-md-2 pull-right ml-1" style="margin-left: 10px; width: 180px;">
+                            <input type="text" name="table_search" class="form-control pull-right" placeholder="搜索" id="txt_Search" v-model="keywords" v-on:keyup.13="Query" />
+
+                            <div class="input-group-btn">
+                                <button type="button" class="btn btn-default " @@click="Query()" id="btn_Search"><i class="fa fa-search"></i></button>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+                <!-- /.box-header -->
+                <div class="box-body table-responsive no-padding">
+                    <table class="table table-hover" id="tab_file">
+                        <tbody>
+                            <tr>
+                                <th><input type="checkbox" id="chk_all" @@click="OnAllCheck()" style="width:20px;height:20px" /></th>
+                                <th>姓名</th>
+                                <th>工号</th>
+                                <th>部门</th>
+                                <th>归属组</th>
+                                <th>操作</th>
+                            </tr>
+                            <tr v-for="(item,index) in peoplelist">
+
+                                <td><input type="checkbox" name="chk_file" :id="item.UserGroup_Id" @@click="OnCheck()" style="width:20px;height:20px" /></td>
+                                <td>{{item.Name}}</td>
+                                <td>{{item.Workid}}</td>
+                                <td>{{item.Dep1+'>'+item.Dep2+'>'+item.Dep3+'>'+item.Dep4+'>'+item.Dep5}}</td>
+                                <td>{{item.Group_Name}}</td>
+                                <td>
+
+                                    <button type="button" class="btn bg-red  btn-xs" v-on:click="DelPeopleToGroup(item)">移除</button>
+                                </td>
+                            </tr>
+
+                        </tbody>
+                    </table>
+
+
+
+                </div>
+                <!-- /.box-body -->
+
+
+                <div class="box-footer no-padding">
+                    <div class="card-footer clearfix pull-left" style="margin-left:20px;margin-top:30px;margin-bottom:30px">
+
+                    </div>
+
+                    <div class="card-footer clearfix pull-right " style="margin-right:30px;margin-top:30px;margin-bottom:30px" >
+
+                        <el-pagination background
+                                       layout="total, prev, pager, next,sizes"
+                                       @@current-change="InitPeople"
+                                       @@size-change="PageSizeChange"
+                                       :page-sizes="[10, 20, 50,100]"
+                                       :page-size="pageModel.pageSize"
+                                       :total="pageModel.TotalCount">
+                        </el-pagination>
+                    </div>
+
+
+                    <!-- /.pull-right -->
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <div class="modal fade" id="modal-default">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title" id="txt_username">{{checkGroup.Group_Name}}</h4>
+                </div>
+                <div class="modal-body">
+
+                    <div class="box-body table-responsive no-padding ">
+
+                        <div class="input-group input-group-sm   col-md-12" style=" padding: 15px">
+                            <input type="text" class="form-control" placeholder="姓名、部门、工号. 回车键开始检索" v-model="queryKeys" v-on:keyup.13="QueryPeople" />
+
+                            <div class="input-group-btn">
+                                <button type="button" class="btn btn-default " @@click="QueryPeople()"><i class="fa fa-search"></i></button>
+                            </div>
+
+                        </div>
+
+
+                        <div class="form-group col-md-5">
+
+                            <select multiple="" class="form-control col-11" style="height:250px;margin-top:10px;margin-left:1px;">
+                                <option :value="item.Id" v-for="item in queryArray" v-on:dblclick="PeopleMoveRight(item)">{{item.Name}}[{{item.Workid}}]</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group col-md-2" style="margin-top:30px">
+                            <input type="button" value=">>" class="form-control" @@click="PeopleAllRight" />
+                            <br />
+                            <input type="button" value="<<" class="form-control" @@click="PeopleAllLeft" />
+                        </div>
+
+                        <div class="form-group col-md-5">
+
+                            <select multiple="" class="form-control col-11" style="height:250px;margin-top:10px;margin-right:1px;">
+                                <option :value="item.Id" v-for="item in checkArray" v-on:dblclick="PeopleMoveLeft(item)">{{item.Name}}[{{item.Workid}}]</option>
+                            </select>
+                        </div>
+
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default pull-left" data-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-primary pull-right" data-dismiss="modal" @@click="AddPeopleToGroup">添加</button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+    </div>
+
+
+
+    <div class="modal fade" id="modal-role">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title" >绑定角色</h4>
+                </div>
+                <div class="modal-body">
+
+                    <div class="box-body table-responsive no-padding">
+
+                        <el-table :data="rolelist"
+                                  style="width: 100%;"
+                                  row-key="Id"
+                                  ref="tab_role"
+                                  @@select="ChangeRole"
+                                 >
+                            <el-table-column type="selection"  width="55" >
+                            </el-table-column>
+                            <el-table-column prop="Role_Name" label="角色名称"></el-table-column>
+
+                        </el-table>
+
+
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default pull-right" data-dismiss="modal">关闭</button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+    </div>
+
+
+
+</section>
+
+
+
+@section scripts{
+
+    <script>
+
+        var self;
+
+        var vm = new Vue({
+            el: "#tab",
+            data: {
+                grouplist: [],
+                peoplelist: [],
+
+                keywords: "",
+                checkGroup: {},   //当前选中的文件夹节点
+                checkList: [],
+
+                defaultProps: {
+                    children: 'Childs',
+                    label: 'Group_Name'
+                },
+                pageModel: {
+                    pageIndex: 1,
+                    pageSize: 10,
+                    TotalCount: 0,
+                    ToTalPage: 0,
+                },
+                queryKeys: "",
+                queryArray: [],
+                checkArray: [],
+                rolelist:[]
+            },
+            created: function () {
+                self = this;
+                self.InitGroup();
+
+            },
+            mounted() {
+
+            },
+            methods: {
+                Query() {
+                    self.InitPeople(1);
+                },
+                InitGroup() {
+
+                    MyAjax({
+                        url: "/Group/ListGroupByTree",
+                        data: {
+
+                        }, type: "POST",
+                        success: function (result) {
+
+                            console.log(result);
+
+                            if (!result.Success) {
+                                alert_info(result.Message);
+                                return;
+                            }
+
+                            self.grouplist = result.Content;
+
+                            //加载组员
+                            self.InitPeople(1);
+
+                        }
+                    })
+                },
+                AddGroup(node, data) {
+                    //添加文件夹
+
+                    console.log("====父级ID", node, data);
+
+                    bootbox.prompt({
+                        size: "small",
+                        title: "请输入文件夹名称:",
+                  
+                        callback: function (res) {
+
+                            if (res == null) {
+                                return;
+                            }
+
+                            var model = {};
+                            model.Group_Name = res;
+                            model.Parent_Id = data.Id;
+
+                            MyAjax({
+                                url: "/Group/AddGroup",
+                                data: model,
+                                type: "POST",
+                                success: function (result) {
+
+                                    console.log(result);
+
+                                    if (!result.Success) {
+                                        alert_danger(result.Message);
+                                        return;
+                                    }
+                                    self.InitGroup();
+
+                                }
+
+
+                            });
+
+                        }
+
+                    })
+
+                },
+                DelGroup() {
+                    bootbox.confirm({
+                        size: "small",
+                        message: "您确定删除该分组吗?",
+                        callback: function (res) {
+
+                            if (!res) {
+                                return;
+                            }
+
+                            //删除文件夹
+                            var groupId = self.checkGroup.Id;
+
+                            MyAjax({
+                                url: "/Group/DelGroup",
+                                data: { id: groupId },
+                                type: "POST",
+                                success: function (result) {
+
+                                    console.log(result);
+
+                                    if (!result.Success) {
+                                        alert_danger(result.Message);
+                                        return;
+                                    }
+                                    self.InitGroup();
+
+                                }
+                            });
+
+                        }
+
+                    });
+
+                },
+                UpdateGroup() {
+                    //修改文件夹
+
+
+                    bootbox.prompt({
+                        size: "small",
+                        title: "请输入分组名称:",
+                        value: self.checkGroup.Group_Name,
+                        callback: function (res) {
+
+
+                            if (res == null) {
+                                return;
+                            }
+
+                            var model = self.checkGroup;
+                            model.Group_Name = res;
+
+                            MyAjax({
+                                url: "/Group/UpdateGroup",
+                                data: model,
+                                type: "POST",
+                                success: function (result) {
+
+                                    console.log(result);
+
+                                    if (!result.Success) {
+                                        alert_danger(result.Message);
+                                        return;
+                                    }
+                                    self.InitGroup();
+
+                                }
+                            });
+
+                        }
+                    });
+
+                },
+                Search() {
+                    this.Query();
+                },
+                PageSizeChange(size) {
+                    this.pageModel.pageSize = size;
+                    this.InitPeople(1);
+                },
+                handleNodeClick(data) {
+                    console.log(data);
+                    self.checkGroup = data;
+                    self.InitPeople(1);
+                },
+                InitPeople(index) {
+
+                    //默认加载第一个文件夹
+
+                    if (Object.keys(self.checkGroup).length <= 0) {
+                        self.checkGroup = self.grouplist[0];
+                    }
+
+                    MyAjax({
+                        url: "/Group/ListPeople",
+                        data: {
+                            groupid: self.checkGroup.Id,
+                            keyword: self.keywords,
+                            pageIndex: index,
+                            pageSize: self.pageModel.pageSize,
+                        }, type: "POST",
+                        showloading: false,
+                        success: function (result) {
+
+                            console.log(result);
+
+                            if (!result.Success) {
+                                alert_danger(result.Message);
+                                return;
+                            }
+                            self.peoplelist = result.Content;
+
+                            self.pageModel.pageIndex = result.PageIndex;
+                            self.pageModel.pageSize = result.PageSize;
+                            self.pageModel.TotalCount = result.TotalCount;
+                            self.pageModel.ToTalPage = result.ToTalPage;
+
+                        }
+                    });
+
+                },
+                ShowAddPeople() {
+                    $('#modal-default').modal('show');
+                },
+                OnCheck() {
+                    var list = $("#tab_file td :checkbox"); //列表模式下，从tab中获取
+                    console.log(list);
+
+                    self.checkList = [];
+                    $.each(list, function (index, value) {
+                        if (list[index].checked) {
+                            let model = {};
+                            model.id = list[index].id;
+                            self.checkList.push(model);
+                        }
+                    });
+                    console.log("选中的复选框=====", self.checkList);
+
+
+                },
+                OnAllCheck() {
+
+                    if ($("#chk_all")[0].checked) {
+                        var list = $("#tab_file td :checkbox");
+                        list.prop("checked", true);
+
+                        $.each(list, function (index, value) {
+
+                            let model = {};
+                            model.id = list[index].id;
+                            self.checkList.push(model);
+
+                        });
+
+
+                    } else {
+                        $("#tab_file td :checkbox").prop("checked", false);
+
+                        self.checkList = [];
+                    }
+
+                },
+                OnClearCheck() {
+                    var list = $("#tab_file td :checkbox"); 
+
+                    self.checkList = [];
+                    $.each(list, function (index, value) {
+                        list[index].checked = false;
+                    });
+
+                    $("#chk_all")[0].checked = false; 
+                    
+                },
+                BatchDeletePeople() {
+
+                    console.log("选中的集合", self.checkList);
+
+                    if (self.checkList.length <= 0) {
+
+                        alert_danger("请勾选您要删除的文件！");
+                        return;
+                    }
+
+
+                    bootbox.confirm({
+                        size: "small",
+                        message: "您确定删除改文件吗?",
+                        callback: function (res) {
+
+                            if (!res) {
+                                return;
+                            }
+
+                            var array = [];
+                            for (var item of self.checkList) {
+                                array.push(parseInt(item.id));
+                            }
+
+                            console.log("=====", array);
+
+                            MyAjax({
+                                url: "/Group/BatchDeletePeople",
+                                data: { ids: array },
+                                type: "post",
+                                success: function (result) {
+
+                                    console.log(result);
+
+                                    if (!result.Success) {
+                                        alert_danger(result.Message);
+                                        return;
+                                    }
+                                    alert_success(result.Message);
+                                    self.InitPeople(self.pageModel.pageIndex);
+
+
+                                    // 删除之后 调用一次 清理 选中集合 ，以免文件已不存在，导致批量删除 或 批量下载失败
+                                    self.OnClearCheck();
+
+                                }
+
+                            });
+
+                        }
+                    });
+
+                },
+                QueryPeople() {
+                    //检索用户成为组员
+
+                    MyAjax({
+                        url: "/Group/QueryPeople",
+                        data: { keyword: self.queryKeys },
+                        type: "post",
+                        showloading: false,
+                        success: function (result) {
+
+                            console.log(result);
+
+                            if (!result.Success) {
+                                alert_danger(result.Message);
+                                return;
+                            }
+                            self.queryArray = result.Content;
+                        }
+
+                    });
+                },
+                PeopleMoveRight(item) {
+
+                    for (var i = 0; i < self.checkArray.length; i++) {
+                        if (self.checkArray[i].Workid == item.Workid) {
+                            return;
+                        }
+                    }
+
+                    self.checkArray.push(item);
+                },
+                PeopleMoveLeft(item) {
+
+                    for (var i = 0; i < self.checkArray.length; i++) {
+                        if (self.checkArray[i].Workid == item.Workid) {
+                            self.checkArray.splice(i, 1);
+                        }
+                    }
+                },
+                PeopleAllRight() {
+
+                    for (let item of self.queryArray) {
+                            self.checkArray.push(item);
+                    }
+                },
+                HasPeople(Workid) {
+                    for (let chks of self.checkArray) {
+                        if (chks.Workid == Workid) {
+                            return true;
+                        }
+                    }
+                },
+                PeopleAllLeft() {
+                    self.checkArray = [];
+                },
+                AddPeopleToGroup() {
+
+                    let list = [];
+
+                    console.log("选中的用户组===", self.checkGroup);
+
+                    for (var item of self.checkArray) {
+                        let model = {};
+                        model.User_Id = item.Id;
+                        model.Group_Id = self.checkGroup.Id;
+                        list.push(model);
+                    }
+
+                    MyAjax({
+                        url: "/Group/AddPeopleToGroup",
+                        data: {
+                            list: list,
+                            groupid: self.checkGroup.Id
+                        },
+                        type: "post",
+                        showloading: false,
+                        success: function (result) {
+
+                            console.log(result);
+
+                            if (!result.Success) {
+                                alert_danger(result.Message);
+                                return;
+                            }
+                            alert_success(result.Message);
+                            self.InitPeople(1);
+                        }
+
+                    });
+
+                },
+                DelPeopleToGroup(item) {
+
+                    bootbox.confirm({
+                        size: "small",
+                        message: "您确定删除该选项吗?",
+                        callback: function (res) {
+
+                            if (!res) {
+                                return;
+                            }
+
+                            MyAjax({
+                                url: "/Group/DelPeopleToGroup",
+                                data: {
+                                    tugid: item.UserGroup_Id
+                                },
+                                type: "post",
+                                showloading: false,
+                                success: function (result) {
+
+                                    console.log(result);
+
+                                    if (!result.Success) {
+                                        alert_danger(result.Message);
+                                        return;
+                                    }
+
+                                    alert_success(result.Message);
+                                    self.InitPeople(self.pageModel.pageIndex);
+
+                                    // 删除之后 调用一次 清理 选中集合 
+                                    self.OnClearCheck();
+                                }
+                            });
+                        }
+                    });
+
+
+                },
+                ShowGroupRole(node, data) {
+                    self.InitRoleList(data);
+                    $('#modal-role').modal('show');
+                   
+                },
+                InitRoleList(data) {
+
+                    var groupid = data.Id;
+
+                    MyAjax({
+                        url: "/Group/ListRole",
+                        data: {
+
+                        }, type: "POST",
+                        showloading: false,
+                        success: function (result) {
+
+                            console.log("角色列表",result);
+
+                            if (!result.Success) {
+                                alert_info(result.Message);
+                                return;
+                            }
+                            self.rolelist = result.Content;
+
+
+                            MyAjax({
+                                url: "/Group/ListGroupRole",
+                                type: "POST",
+                                showloading: false,
+                                data: {
+                                    groupid: groupid
+                                },
+                                success: function (result) {
+
+                                    console.log("根据groupid获取的角色",result);
+
+                                    if (!result.Success) {
+                                        alert_info(result.Message);
+                                        return;
+                                    }
+
+                                    for (var i = 0; i < result.Content.length; i++) {
+
+                                        for (var j = 0; j < self.rolelist.length; j++) {
+
+                                            if (result.Content[i].Role_Id == self.rolelist[j].Id) {
+
+                                                //self.rolelist[j].checked = true;
+                                                self.$refs.tab_role.toggleRowSelection(self.rolelist[j], true);
+                                            } else {
+                                               // self.rolelist[j].checked = false;
+                                            }
+                                        }
+                                      
+                                    }
+
+                                }
+                            })
+
+                        }
+                    })
+
+                },
+                ChangeRole(item, row) {
+
+                    //console.log("item", item);
+                    //console.log("checkGroup", this.checkGroup);
+                    //console.log("row", row);
+
+                    var isbind = item.length && item.indexOf(row) !== -1;  //判断是否选中
+                    var roleid = row.Id;
+                    var groupid = this.checkGroup.Id;
+
+                    MyAjax({
+                        url: "/Group/BindGroupRole",
+                        type: "POST",
+                        showloading: false,
+                        data: {
+                            groupid: groupid,
+                            roleid: roleid,
+                            isbind: isbind
+                        },
+                        success: function (result) {
+
+                            console.log(result);
+
+                            if (!result.Success) {
+                                alert_info(result.Message);
+                                return;
+                            }
+                            alert_success(result.Message);
+                        }
+                    })
+
+                },
+
+            }
+        });
+
+
+
+
+    </script>
+
+}
