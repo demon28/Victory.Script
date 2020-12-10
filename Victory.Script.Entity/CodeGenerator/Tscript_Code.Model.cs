@@ -36,7 +36,7 @@ namespace Victory.Script.Entity.CodeGenerator
         ///<summary>
         ///描述：状态{0:未使用，1，已使用}
         ///</summary>
-        public string Status { get; set; }
+        public int Status { get; set; }
         ///<summary>
         ///描述：
         ///</summary>
@@ -58,7 +58,7 @@ namespace Victory.Script.Entity.CodeGenerator
         ///</summary>
         public DateTime Activation  { get; set; }
         ///<summary>
-        ///描述：激活码类型{0:终生,1:月卡，2：季卡，3：年卡}
+        ///描述：激活码类型{0:天卡,1:月卡，2：季卡，3：年卡，4：终生}
         ///</summary>
         public int Type { get; set; }
         ///<summary>

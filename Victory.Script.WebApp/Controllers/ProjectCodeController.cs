@@ -63,6 +63,10 @@ namespace Victory.Script.WebApp.Controllers
         [HttpPost]
         public IActionResult CodeAdd(Tscript_Code model)
         {
+            model.Code = Entity.CreateCode.Create();
+            model.Createtime = DateTime.Now;
+            model.Status = 0;
+            model.Agent = 1;
 
             Tscript_Code_Da da = new Tscript_Code_Da();
             da.Insert(model);
@@ -107,8 +111,7 @@ namespace Victory.Script.WebApp.Controllers
         [HttpPost]
         public IActionResult CreateCode()
         {
-            string code= Guid.NewGuid().ToString();
-            return SuccessResult(code);
+            return SuccessResult(Entity.CreateCode.Create());
 
         }
 
