@@ -1,0 +1,651 @@
+﻿<!--
+DA  v1.1
+2020-10-23
+Near
+-->
+
+@section Pageheader{
+    <h1>
+        <small> ProjectCode</small>
+
+    </h1>
+    <ol class="breadcrumb">
+        <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
+        <li class="active">ProjectCode</li>
+    </ol>
+
+}
+
+
+
+<section class="content" id="tab">
+    <div class="row">
+
+
+        <div class="col-md-3">
+
+
+            <div class="box box-primary">
+                <div class="box-header">
+                    <h3 class="box-title">项目列表</h3>
+
+                    <div class="box-tools">
+
+                        <div class="input-group input-group-sm  col-md-1 pull-right ml-1" style="margin-left:10px;">
+                            <button type="button" class="btn btn-default pull-right" v-on:click="AddProject()" id="btn_Search">添加</button>
+                        </div>
+
+
+
+                    </div>
+                </div>
+                <!-- /.box-header -->
+                <div class="box-body table-responsive no-padding">
+
+
+                    <el-table ref="multipleTable"
+                              :data="projectlist"
+                              stripe
+                              tooltip-effect="dark"
+                              style="width: 100%">
+
+
+
+
+                  
+
+                        <el-table-column prop="Id" label="ID"  width="60" show-overflow-tooltip> </el-table-column>
+                        <el-table-column prop="Name" label="项目名称" show-overflow-tooltip> </el-table-column>
+
+                        <el-table-column label="操作" width="170" align="center">
+                            <template slot-scope="scope">
+                                <button type="button" class="btn bg-green btn-xs" v-on:click="ShowCode(scope.row)" style="margin-left:4px">激活码</button>
+                                <button type="button" class="btn bg-orange btn-xs" v-on:click="UpdateProject(scope.row)" style="margin-left:4px">修改</button>
+                                <button type="button" class="btn bg-red btn-xs" v-on:click="DeleteProject(scope.row)" style="margin-left:4px">删除</button>
+                            </template>
+                        </el-table-column>
+
+
+                    </el-table>
+
+
+                </div>
+                <!-- /.box-body -->
+
+
+                <div class="box-footer no-padding">
+                    <div class="card-footer clearfix pull-left" style="margin-left:20px;margin-top:30px;margin-bottom:30px">
+
+                    </div>
+
+                    <div class="card-footer clearfix pull-right " style="margin-right:30px;margin-top:30px;margin-bottom:30px" id="div_page">
+
+
+                    </div>
+
+
+                    <!-- /.pull-right -->
+                </div>
+            </div>
+        </div>
+
+
+
+
+
+
+        <!-- /.col -->
+        <div class="col-md-9">
+            <div class="box box-primary">
+                <div class="box-header">
+                    <h3 class="box-title">激活码</h3>
+
+                    <div class="box-tools">
+
+                        <div class="input-group input-group-sm  col-md-1 pull-right ml-1" style="margin-left:10px;">
+                            <button type="button" class="btn btn-default pull-right" v-on:click="Export()" id="btn_Search">导出Excel</button>
+                        </div>
+
+                        <div class="input-group input-group-sm  col-md-1 pull-right ml-1" style="margin-left:10px;">
+                            <button type="button" class="btn btn-default pull-right" v-on:click="BatchAdd()" id="btn_Search">批量生成</button>
+                        </div>
+                        <div class="input-group input-group-sm  col-md-1 pull-right ml-1" style="margin-left:10px;">
+                            <button type="button" class="btn btn-default pull-right" v-on:click="ShowAdd()" id="btn_Search">添加</button>
+                        </div>
+
+
+                        <div class="input-group input-group-sm hidden-xs  pull-right" style="width: 200px;">
+                            <input type="text" name="table_search" class="form-control pull-right" placeholder="Search" id="txt_Search" v-model="keywork" v-on:keyup.13="Search" />
+
+                            <div class="input-group-btn">
+                                <button type="button" class="btn btn-default " v-on:click="Search()" id="btn_Search"><i class="fa fa-search"></i></button>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+                <!-- /.box-header -->
+                <div class="box-body table-responsive no-padding">
+
+
+                    <el-table ref="multipleTable"
+                              :data="list"
+                              stripe
+                              tooltip-effect="dark"
+                              style="width: 100%">
+
+
+
+
+                        <el-table-column type="selection" width="40" align="center"></el-table-column>
+
+                        <el-table-column prop="Id" label="序号" width="80" show-overflow-tooltip> </el-table-column>
+                        <el-table-column prop="Code" label="激活码" show-overflow-tooltip> </el-table-column>
+                        <el-table-column label="状态" show-overflow-tooltip>
+
+                            <template slot-scope="scope">
+                                <span class="txt bg-green" v-if="scope.Status==0">未使用</span>
+                                <span class="txt bg-orange" v-if="scope.Status==1">已使用</span>
+                            </template>
+
+                        </el-table-column>
+                        <el-table-column prop="ProjectName" label="项目名称" show-overflow-tooltip> </el-table-column>
+                        <el-table-column prop="Device" label="设备码" show-overflow-tooltip> </el-table-column>
+                        <el-table-column prop="Activation " label="激活时间 " show-overflow-tooltip> </el-table-column>
+                        <el-table-column prop="Expiration" label="到期时间" show-overflow-tooltip> </el-table-column>
+
+                        <el-table-column prop="Type" label="类型" show-overflow-tooltip>
+
+
+                            <template slot-scope="scope">
+                                <span class="txt bg-black" v-if="scope.Type==0">终身</span>
+                                <span class="txt bg-green" v-if="scope.Type==1">月卡</span>
+                                <span class="txt bg-blue" v-if="scope.Type==2">季卡</span>
+                                <span class="txt bg-orange" v-if="scope.Type==3">年卡</span>
+                            </template>
+
+                        </el-table-column>
+                        <el-table-column prop="Agent" label="代理商" show-overflow-tooltip> </el-table-column>
+                        <el-table-column prop="Createtime" label="创建时间" show-overflow-tooltip> </el-table-column>
+
+
+                        <el-table-column label="操作" width="170" align="center">
+                            <template slot-scope="scope">
+                                <button type="button" class="btn bg-orange btn-xs" v-on:click="ShowUpdate(scope.row)" style="margin-left:4px">修改</button>
+                                <button type="button" class="btn bg-red btn-xs" v-on:click="DeleteCode(scope.row)" style="margin-left:4px">删除</button>
+                            </template>
+                        </el-table-column>
+
+
+                    </el-table>
+
+
+                </div>
+                <!-- /.box-body -->
+
+
+                <div class="box-footer no-padding">
+                    <div class="card-footer clearfix pull-left" style="margin-left:20px;margin-top:30px;margin-bottom:30px">
+
+                    </div>
+
+                    <div class="card-footer clearfix pull-right " style="margin-right:30px;margin-top:30px;margin-bottom:30px" id="div_page">
+
+                        <el-pagination @@current-change="Init(pageModel.pageIndex)"
+                                       :current-page.sync="pageModel.pageIndex"
+                                       :page-size="pageModel.pageSize"
+                                       background
+                                       layout="total, prev, pager, next"
+                                       :total="pageModel.TotalCount">
+                        </el-pagination>
+                    </div>
+
+
+                    <!-- /.pull-right -->
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+    <!-- /.col -->
+    <!-- /.row -->
+
+
+    <el-dialog :title="operation" :visible.sync="dialogFormVisible">
+        <el-form :model="info">
+
+
+            <el-form-item label="激活码" :label-width="formLabelWidth">
+                <el-input v-model="info.Code" autocomplete="off" style="width:80%"></el-input>
+                <el-button type="primary" @@click="CreateCode">生成</el-button>
+            </el-form-item>
+            <el-form-item label="状态" :label-width="formLabelWidth">
+                <el-input v-model="info.Status" autocomplete="off" style="width:80%"></el-input>
+            </el-form-item>
+            <el-form-item label="项目ID" :label-width="formLabelWidth">
+                <el-input v-model="info.Project_Id" autocomplete="off" style="width:80%"></el-input>
+            </el-form-item>
+
+
+            <el-form-item label="到期时间" :label-width="formLabelWidth">
+
+                <el-date-picker v-model="info.Expiration"
+                                type="datetime"
+                                placeholder="选择日期时间"
+                                align="right"
+                                style="width:80%"
+                                :picker-options="pickerOptions">
+                </el-date-picker>
+
+            </el-form-item>
+
+            <el-form-item label="类型" :label-width="formLabelWidth">
+              
+                <el-select v-model="info.Type" placeholder="请选择" style="width:80%">
+                    <el-option v-for="item in options"
+                               :key="item.value"
+                               :label="item.label"
+                               :value="item.value">
+                    </el-option>
+                </el-select>
+            </el-form-item>
+            <el-form-item label="代理商" :label-width="formLabelWidth">
+                <el-input v-model="info.Agent" autocomplete="off" style="width:80%"></el-input>
+            </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+            <el-button @@click="dialogFormVisible = false">取 消</el-button>
+            <el-button type="primary" @@click="AddCode" v-if="operation=='add'">确 定</el-button>
+            <el-button type="primary" @@click="UpdateCode" v-if="operation=='update'">确 定</el-button>
+        </div>
+    </el-dialog>
+
+</section>
+
+
+
+
+@section scripts{
+
+    <script>
+
+        var self;
+        var vm = new Vue({
+            el: "#tab",
+            data: {
+                list: [],
+                pageModel: {
+                    pageIndex: 1,
+                    pageSize: 15,
+                    TotalCount: 0,
+                    ToTalPage: 0,
+                },
+                operation: "add",
+                dialogFormVisible: false,
+                formLabelWidth: '120px',
+                info: {},
+                keywork: "",
+                projectlist: [],
+                projectId: 0,
+                options: [{
+                    value: '0',
+                    label: '终身'
+                }, {
+                    value: '1',
+                    label: '月卡'
+                }, {
+                    value: '2',
+                    label: '月卡'
+                }, {
+                    value: '3',
+                    label: '年卡'
+                    }],
+                pickerOptions: {
+                    shortcuts: [{
+                        text: '终身',
+                        onClick(picker) {
+                            const date = new Date();
+                            date.setTime(date.getTime() + 3600 * 1000 * 24*3650);
+                            picker.$emit('pick', date);
+                        }
+                    }, {
+                        text: '月卡',
+                        onClick(picker) {
+                            const date = new Date();
+                            date.setTime(date.getTime() + 3600 * 1000 * 24*30);
+                            picker.$emit('pick', date);
+                        }
+                    }, {
+                        text: '季度',
+                        onClick(picker) {
+                            const date = new Date();
+                            date.setTime(date.getTime() + 3600 * 1000 * 24 * 90);
+                            picker.$emit('pick', date);
+                        }
+                        }, {
+                            text: '年卡',
+                            onClick(picker) {
+                                const date = new Date();
+                                date.setTime(date.getTime() + 3600 * 1000 * 24 * 365);
+                                picker.$emit('pick', date);
+                            }
+                        }]
+                },
+
+            },
+            created: function () {
+                self = this;
+                self.InitCode(1);
+                self.InitProject();
+            },
+            mounted: function () {
+
+
+            },
+            methods: {
+
+                InitCode(index) {
+
+
+                    MyAjax({
+                        url: "/ProjectCode/CodeList",
+                        type: "POST",
+                        showloading: false,
+                        data: {
+                            projectid: self.projectId,
+                            pageIndex: index,
+                            pageSize: self.pageModel.pageSize,
+                            keyword: self.keywork,
+                        },
+                        success: function (result) {
+
+                            // console.log(JSON.stringify(result));
+
+                            if (!result.Success) {
+
+                                self.$message.error(result.Message);
+                                return;
+                            }
+
+                            self.list = result.Content;
+
+                            self.pageModel.pageIndex = result.PageIndex;
+                            self.pageModel.pageSize = result.PageSize;
+                            self.pageModel.TotalCount = result.TotalCount;
+                            self.pageModel.ToTalPage = result.ToTalPage;
+                        }
+                    })
+                },
+                DeleteCode: function (item) {
+
+                    bootbox.confirm("您确定删除该记录吗？", function (res) {
+                        if (res) {
+
+                            MyAjax({
+                                url: "/ProjectCode/CodeDel",
+                                type: "POST",
+                                showloading: false,
+                                data: {
+                                    id: item.Id
+                                },
+                                success: function (result) {
+
+                                    if (!result.Success) {
+
+                                        self.$message.error(result.Message);
+                                        return;
+                                    }
+                                    self.$message.success("删除成功");
+                                    self.Init(self.pageModel.pageIndex);
+
+                                }
+                            })
+                        }
+                    });
+
+
+
+                },
+                AddCode: function () {
+
+                    MyAjax({
+                        url: "/ProjectCode/CodeAdd",
+                        type: "POST",
+                        data: self.info,
+                        showloading: false,
+                        success: function (result) {
+
+                            if (!result.Success) {
+
+                                self.$message.error(result.Message);
+                                return;
+                            }
+                            self.dialogFormVisible = false;
+                            self.$message.success(result.Message);
+                            self.Init(self.pageModel.pageIndex);
+
+                        }
+                    })
+                },
+                UpdateCode: function () {
+                    MyAjax({
+                        url: "/ProjectCode/CodeUpdate",
+                        type: "POST",
+                        data: self.info,
+                        showloading: false,
+                        success: function (result) {
+
+                            if (!result.Success) {
+
+
+                                self.$message.error(result.Message);
+                                return;
+                            }
+                            self.dialogFormVisible = false;
+                            self.$message.success(result.Message);
+                            self.Init(self.pageModel.pageIndex);
+
+                        }
+                    })
+
+                },
+                ShowUpdate: function (item) {
+                    self.operation = "update";
+                    self.dialogFormVisible = true;
+                    self.info = item;
+
+                },
+                ShowAdd() {
+
+                    self.operation = "add";
+                    self.info = {};
+                    self.dialogFormVisible = true;
+
+
+                },
+                Search: function () {
+                    self.Init(1);
+                },
+                BatchAdd: function () {
+
+
+                },
+                InitProject() {
+                    MyAjax({
+                        url: "/ProjectCode/ProjectList",
+                        type: "POST",
+                        showloading: false,
+                        data: {
+
+                        },
+                        success: function (result) {
+
+                            // console.log(JSON.stringify(result));
+
+                            if (!result.Success) {
+
+                                self.$message.error(result.Message);
+                                return;
+                            }
+
+                            self.projectlist = result.Content;
+
+                        }
+                    })
+                },
+
+                ShowCode(item) {
+                    self.projectid = item.Id;
+                    self.InitCode(self.pageModel.pageIndex);
+                },
+                AddProject() {
+
+                    this.$prompt('请输入项目名称', '提示', {
+                        confirmButtonText: '确定',
+                        cancelButtonText: '取消',
+
+                    }).then(({ value }) => {
+
+
+                        MyAjax({
+                            url: "/ProjectCode/ProjectAdd",
+                            type: "POST",
+                            showloading: false,
+                            data: {
+                                name: value
+                            },
+                            success: function (result) {
+
+                                if (!result.Success) {
+
+                                    self.$message.error(result.Message);
+                                    return;
+                                }
+
+                                self.$message.success(result.Message);
+                                self.InitProject();
+
+                            }
+                        })
+
+
+                    }).catch(() => {
+                        this.$message({
+                            type: 'info',
+                            message: '取消输入'
+                        });
+                    });
+
+
+
+                },
+                UpdateProject(item) {
+
+                    this.$prompt('请输入项目名称', '提示', {
+                        confirmButtonText: '确定',
+                        cancelButtonText: '取消',
+                        message: item.name
+                    }).then(({ value }) => {
+
+
+                        MyAjax({
+                            url: "/ProjectCode/ProjectUpdate",
+                            type: "POST",
+                            showloading: false,
+                            data: {
+                                Id: item.Id,
+                                Name: value
+                            },
+                            success: function (result) {
+
+                                if (!result.Success) {
+
+                                    self.$message.error(result.Message);
+                                    return;
+                                }
+
+                                self.$message.success(result.Message);
+                                self.InitProject();
+
+                            }
+                        })
+
+
+                    }).catch(() => {
+                        this.$message({
+                            type: 'info',
+                            message: '取消输入'
+                        });
+                    });
+
+                },
+                DeleteProject(item) {
+                    bootbox.confirm("您确定删除该记录吗？", function (res) {
+                        if (res) {
+
+                            MyAjax({
+                                url: "/ProjectCode/ProjectDel",
+                                type: "POST",
+                                showloading: false,
+                                data: {
+                                    id: item.Id
+                                },
+                                success: function (result) {
+
+                                    if (!result.Success) {
+
+                                        self.$message.error(result.Message);
+                                        return;
+                                    }
+                                    self.$message.success("删除成功");
+                                    self.Init(self.pageModel.pageIndex);
+
+                                }
+                            })
+                        }
+                    });
+                },
+
+                CreateCode() {
+                    MyAjax({
+                        url: "/ProjectCode/CreateCode",
+                        type: "POST",
+                        showloading:false,
+                        data: {
+                        
+                        },
+                        success: function (result) {
+
+                            console.log(result);
+
+
+                            if (!result.Success) {
+
+                                self.$message.error(result.Message);
+                                return;
+                            }
+
+                            self.info.Code= result.Content;
+
+                        }
+                    })
+
+
+                },
+                Export() {
+
+                }
+
+
+            },
+
+
+
+        });
+
+
+    </script>
+
+}
