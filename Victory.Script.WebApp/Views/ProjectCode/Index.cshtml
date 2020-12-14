@@ -167,7 +167,7 @@ Near
                         @*<el-table-column prop="Agent" label="代理商" show-overflow-tooltip> </el-table-column>*@
                         <el-table-column prop="Device" label="设备码"  show-overflow-tooltip> </el-table-column>
                         <el-table-column prop="Activation " label="激活时间 " show-overflow-tooltip> </el-table-column>
-                        <el-table-column prop="Expiration" label="到期时间" show-overflow-tooltip> </el-table-column>
+                        <el-table-column prop="Expiration" label="到期时间" show-overflow-tooltip > </el-table-column>
                         @*<el-table-column prop="Createtime" label="创建时间" show-overflow-tooltip> </el-table-column>*@
 
 
@@ -291,19 +291,19 @@ Near
                 projectlist: [],
                 projectId: 1,
                 options: [{
-                    value: '0',
+                    value: 0,
                     label: '天卡'
                 }, {
-                    value: '1',
+                    value: 1,
                     label: '月卡'
                 }, {
-                    value: '2',
+                    value: 2,
                     label: '月卡'
                 }, {
-                    value: '3',
+                    value: 3,
                     label: '年卡'
                 }, {
-                    value: '4',
+                    value: 4,
                     label: '终生'
                 }],
                 pickerOptions: {
@@ -468,6 +468,8 @@ Near
                 ShowUpdate: function (item) {
                     self.operation = "update";
                     self.dialogFormVisible = true;
+
+                    console.log(item);
                     self.info = item;
 
                 },

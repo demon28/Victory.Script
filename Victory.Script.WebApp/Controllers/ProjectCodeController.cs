@@ -6,8 +6,10 @@ using Microsoft.AspNetCore.Mvc;
 using Victory.Core.Controller;
 using Victory.Core.Models;
 using Victory.Script.DataAccess.CodeGenerator;
+using Victory.Script.Entity;
 using Victory.Script.Entity.CodeGenerator;
 using Victory.Script.WebApp.Attribute;
+using static Victory.Script.Entity.Enums.CodeEnum;
 
 namespace Victory.Script.WebApp.Controllers
 {
@@ -36,7 +38,7 @@ namespace Victory.Script.WebApp.Controllers
 
             if (!string.IsNullOrEmpty(keyword))
             {
-                data = data.Where((a, b) => a.Name.Contains(keyword));
+                data = data.Where((a, b) => a.Name.Contains(keyword) || b.Device.Contains(keyword));
             }
 
             page.TotalCount = (int)data.Count();
@@ -45,8 +47,9 @@ namespace Victory.Script.WebApp.Controllers
             var list = data.Page(page.PageIndex, page.PageSize)
                 .OrderBy((a,b)=>b.Id)
                 .ToList((a,b)=>new { 
+                    
                     ProjectName= a.Name,
-                    Id = b.Id,
+                    b.Id,
                     b.Activation,
                     b.Agent,
                     b.Code,
@@ -55,6 +58,7 @@ namespace Victory.Script.WebApp.Controllers
                     b.Expiration,
                     b.Status,
                     b.Type,
+                    b.Project_Id
             });
             return SuccessResultList(list, page);
         }
@@ -101,10 +105,34 @@ namespace Victory.Script.WebApp.Controllers
 
         [HttpPost]
         [Permission(PowerName = "批量生成激活码")]
-        public IActionResult BatchAdd(int projectid,int count,int type, int agent)
+        public IActionResult BatchAdd(int projectid,int count, CodeType type, int agent=0)
         {
-        
-            return SuccessMessage("添加成功！");
+            List<Tscript_Code> list = new List<Tscript_Code>();
+
+            for (int i = 0; i < count; i++)
+            {
+                Tscript_Code model = new Tscript_Code();
+
+                model.Agent = agent;
+                model.Code =Entity.CreateCode.Create();
+                model.Createtime = DateTime.Now;
+                model.Device = string.Empty;
+                model.Type = (int)type;
+                model.Status = (int)CodeStatus.未激活;
+                model.Project_Id = projectid;
+                model.Expiration = DateTimeHelper.CodeTypeDate(type);
+
+                list.Add(model);
+            }
+
+            int nums = DataAccess.DbContext.Db.Insert<Tscript_Code>(list).ExecuteAffrows();
+
+            if (nums > 0)
+            {
+                return SuccessMessage("添加成功！");
+            }
+            return FailMessage("添加失败");
+       
         }
 
         [Permission(PowerName = "生成激活码")]
