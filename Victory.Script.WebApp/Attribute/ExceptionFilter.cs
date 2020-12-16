@@ -30,7 +30,7 @@ namespace Victory.Script.WebApp.Attribute
             bool IsAjax = false;
             if (requestData)
             {
-                IsAjax = context.HttpContext.Request.Headers["x-requested-with"] == "XMLHttpRequest" ? true : false;
+                IsAjax = context.HttpContext.Request.Headers["x-requested-with"] == "XMLHttpRequest";
             }
             if (!IsAjax)//不是异步请求则跳转页面，异步请求则返回json
             {
@@ -44,7 +44,7 @@ namespace Victory.Script.WebApp.Attribute
             }
             else
             {
-                context.Result = new JsonResult(new { Success = false, Code = 500, Message = ex.Message });
+                context.Result = new JsonResult(new { Success = false, Code = 500, ex.Message });
             }
         }
 

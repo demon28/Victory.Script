@@ -68,21 +68,19 @@ namespace Victory.Script.WebApp.Attribute
         /// <param name="httpRequest">HttpRequest对象</param>
         /// <param name="encoding">默认编码为UTF8</param>
         /// <returns></returns>
-        public string GetBodyValueAsync(HttpRequest httpRequest, Encoding encoding = null)
+        public string GetBodyValueAsync(HttpRequest httpRequest)
         {
             string result = string.Empty;
             try
             {
 
-                using (var mStream = new MemoryStream())
-                using (var reader = new StreamReader(mStream))
-                {
-                    httpRequest.Body.Seek(0, SeekOrigin.Begin);
-                    httpRequest.Body.CopyTo(mStream);
-                    mStream.Seek(0, SeekOrigin.Begin);
-                    result = reader.ReadToEnd();
-                    httpRequest.Body.Seek(0, SeekOrigin.Begin);
-                }
+                using var mStream = new MemoryStream();
+                using var reader = new StreamReader(mStream);
+                httpRequest.Body.Seek(0, SeekOrigin.Begin);
+                httpRequest.Body.CopyTo(mStream);
+                mStream.Seek(0, SeekOrigin.Begin);
+                result = reader.ReadToEnd();
+                httpRequest.Body.Seek(0, SeekOrigin.Begin);
 
             }
             catch (Exception e)
