@@ -120,18 +120,19 @@ namespace Victory.Script.WebApp.Attribute
             //获取功能归属哪个页面
             Tright_Operation root = da.Where(s => s.Controller == controllerName && s.Type == (int)OpeartionType.页面访问).First();
 
-            Tright_Operation model = new Tright_Operation();
-
-            model.Action = actionName;
-            model.Area = areaName;
-            model.Code = Guid.NewGuid().ToString();
-            model.Controller = controllerName;
-            model.Parent_Id = isAjax ? root.Id : 0;
-            model.Sortid = 0;
-            model.Status = 0;
-            model.Type = isAjax ? (int)OpeartionType.功能操作 : (int)OpeartionType.页面访问;
-            model.Url = page;
-            model.Name = PowerName;
+            Tright_Operation model = new Tright_Operation
+            {
+                Action = actionName,
+                Area = areaName,
+                Code = Guid.NewGuid().ToString(),
+                Controller = controllerName,
+                Parent_Id = isAjax ? root.Id : 0,
+                Sortid = 0,
+                Status = 0,
+                Type = isAjax ? (int)OpeartionType.功能操作 : (int)OpeartionType.页面访问,
+                Url = page,
+                Name = PowerName
+            };
 
 
             da.Insert(model);
