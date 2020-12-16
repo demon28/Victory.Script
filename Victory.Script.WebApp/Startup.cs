@@ -13,6 +13,7 @@ using System.IO;
 using log4net.Config;
 using Victory.Script.WebApp.Attribute;
 using Victory.Script.Entity;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 
 namespace Victory.Script.WebApp
 {
@@ -41,9 +42,10 @@ namespace Victory.Script.WebApp
             });
             #endregion
 
-            //二次读流
-            services.Configure<IISServerOptions>(x => x.AllowSynchronousIO = true);
-
+         
+            //允许异步，（二次读流）
+            services.Configure<KestrelServerOptions>(x => x.AllowSynchronousIO = true)
+                 .Configure<IISServerOptions>(x => x.AllowSynchronousIO = true);
 
             //配置，不用每次修改html 都重新run
             services.AddControllersWithViews()

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using static Victory.Script.Entity.Enums.CodeEnum;
+using Victory.Script.Entity.Enums;
 
 namespace Victory.Script.Entity
 {
@@ -10,32 +10,15 @@ namespace Victory.Script.Entity
 
         public static DateTime CodeTypeDate(CodeType type)
         {
-
-            DateTime date;
-            switch (type)
+            return type switch
             {
-                case CodeType.天卡:
-                    date= DateTime.Now.AddDays(1);
-                        break;
-                case CodeType.月卡:
-                    date = DateTime.Now.AddMonths(1);
-                    break;
-                case CodeType.季卡:
-                    date = DateTime.Now.AddMonths(3);
-                    break;
-                case CodeType.年卡:
-                    date = DateTime.Now.AddYears(1);
-                    break;
-                case CodeType.终身:
-                    date = DateTime.Now.AddYears(10);
-                    break;
-                default:
-                    date = DateTime.Now;
-                    break;
-            }
-
-            return date;
-
+                CodeType.天卡 => DateTime.Now.AddDays(1),
+                CodeType.月卡 => DateTime.Now.AddMonths(1),
+                CodeType.季卡 => DateTime.Now.AddMonths(3),
+                CodeType.年卡 => DateTime.Now.AddYears(1),
+                CodeType.终身 => DateTime.Now.AddYears(10),
+                _ => DateTime.Now,
+            };
 
         }
 

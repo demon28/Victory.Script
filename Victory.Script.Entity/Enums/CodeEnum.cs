@@ -4,8 +4,7 @@ using System.Text;
 
 namespace Victory.Script.Entity.Enums
 {
-   public class CodeEnum
-    {
+  
 
        public enum CodeType
         {
@@ -18,8 +17,10 @@ namespace Victory.Script.Entity.Enums
 
         public enum CodeStatus
         {
-            未激活 = 0,
-            已激活=1
+            全选 = 9,
+            未使用 = 0,
+            已使用=1
+          
         }
-    }
+   
 }

@@ -8,8 +8,9 @@ using Victory.Core.Models;
 using Victory.Script.DataAccess.CodeGenerator;
 using Victory.Script.Entity;
 using Victory.Script.Entity.CodeGenerator;
+using Victory.Script.Entity.Enums;
 using Victory.Script.WebApp.Attribute;
-using static Victory.Script.Entity.Enums.CodeEnum;
+
 
 namespace Victory.Script.WebApp.Controllers
 {
@@ -25,20 +26,27 @@ namespace Victory.Script.WebApp.Controllers
 
         [Permission(PowerName = "激活码查询")]
         [HttpPost]
-        public IActionResult CodeList(int projectid,string keyword, int pageIndex, int pageSize)
+        public IActionResult CodeList(CodeStatus status,int projectid,string keyword, int pageIndex, int pageSize)
         {
 
-            PageModel page = new PageModel();
-            page.PageIndex = pageIndex;
-            page.PageSize = pageSize;
+            PageModel page = new PageModel
+            {
+                PageIndex = pageIndex,
+                PageSize = pageSize
+            };
 
             var data = DataAccess.DbContext.Db.Select<Tscript_Project,Tscript_Code>()
                 .LeftJoin((a,b)=>b.Project_Id==a.Id)
-                .Where((a,b)=>b.Project_Id==projectid);
+                .Where((a,b)=>b.Project_Id==projectid );
 
             if (!string.IsNullOrEmpty(keyword))
             {
                 data = data.Where((a, b) => a.Name.Contains(keyword) || b.Device.Contains(keyword));
+            }
+
+            if (status !=CodeStatus.全选)
+            {
+                data = data.Where((a, b) => b.Status==(int)status);
             }
 
             page.TotalCount = (int)data.Count();
@@ -111,16 +119,17 @@ namespace Victory.Script.WebApp.Controllers
 
             for (int i = 0; i < count; i++)
             {
-                Tscript_Code model = new Tscript_Code();
-
-                model.Agent = agent;
-                model.Code =Entity.CreateCode.Create();
-                model.Createtime = DateTime.Now;
-                model.Device = string.Empty;
-                model.Type = (int)type;
-                model.Status = (int)CodeStatus.未激活;
-                model.Project_Id = projectid;
-                model.Expiration = DateTimeHelper.CodeTypeDate(type);
+                Tscript_Code model = new Tscript_Code
+                {
+                    Agent = agent,
+                    Code = Entity.CreateCode.Create(),
+                    Createtime = DateTime.Now,
+                    Device = string.Empty,
+                    Type = (int)type,
+                    Status = (int)CodeStatus.未使用,
+                    Project_Id = projectid,
+                    Expiration = DateTimeHelper.CodeTypeDate(type)
+                };
 
                 list.Add(model);
             }
@@ -142,6 +151,19 @@ namespace Victory.Script.WebApp.Controllers
             return SuccessResult(Entity.CreateCode.Create());
 
         }
+
+
+
+        [Permission(PowerName = "导出激活码")]
+        [HttpPost]
+        public IActionResult ExportCode()
+        {
+            string url = string.Empty;
+
+            return SuccessResult(url);
+        }
+
+
 
 
         [Permission(PowerName = "项目查询")]
@@ -168,10 +190,12 @@ namespace Victory.Script.WebApp.Controllers
         [HttpPost]
         public IActionResult ProjectAdd(string name)
         {
-            Tscript_Project model = new Tscript_Project();
-            model.Name = name;
-            model.Createtime = DateTime.Now;
-            
+            Tscript_Project model = new Tscript_Project
+            {
+                Name = name,
+                Createtime = DateTime.Now
+            };
+
             Tscript_Project_Da da = new Tscript_Project_Da();
             da.Insert(model);
             return SuccessMessage("添加成功！");

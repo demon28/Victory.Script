@@ -66,6 +66,15 @@ namespace Victory.Script.Entity.CodeGenerator
         ///</summary>
         public int Agent { get; set; }
 
+        /// <summary>
+        /// 手机型号
+        /// </summary>
+        public string PhoneType { get; set; }
+
+        /// <summary>
+        /// 备注 
+        /// </summary>
+        public string Remarks { get; set; }
     }
  }
 
