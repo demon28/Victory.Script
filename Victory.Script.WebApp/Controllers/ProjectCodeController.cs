@@ -1,14 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Magicodes.ExporterAndImporter.Core;
+using Magicodes.ExporterAndImporter.Core.Extension;
+using Magicodes.ExporterAndImporter.Excel;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+
 using Victory.Core.Controller;
 using Victory.Core.Models;
 using Victory.Script.DataAccess.CodeGenerator;
 using Victory.Script.Entity;
 using Victory.Script.Entity.CodeGenerator;
 using Victory.Script.Entity.Enums;
+using Victory.Script.Entity.Model;
 using Victory.Script.WebApp.Attribute;
 
 
@@ -16,7 +23,12 @@ namespace Victory.Script.WebApp.Controllers
 {
     public class ProjectCodeController : TopControllerBase
     {
-       
+        private readonly IWebHostEnvironment _hostingEnvironment;
+
+        public ProjectCodeController(IWebHostEnvironment hostingEnvironment)
+        {
+            _hostingEnvironment = hostingEnvironment;
+        }
 
         [Permission(PowerName = "访问")]
         public IActionResult Index()
@@ -26,7 +38,7 @@ namespace Victory.Script.WebApp.Controllers
 
         [Permission(PowerName = "激活码查询")]
         [HttpPost]
-        public IActionResult CodeList(CodeStatus status,int projectid,string keyword, int pageIndex, int pageSize)
+        public IActionResult CodeList(CodeStatus status, int projectid, string keyword, int pageIndex, int pageSize)
         {
 
             PageModel page = new PageModel
@@ -35,28 +47,29 @@ namespace Victory.Script.WebApp.Controllers
                 PageSize = pageSize
             };
 
-            var data = DataAccess.DbContext.Db.Select<Tscript_Project,Tscript_Code>()
-                .LeftJoin((a,b)=>b.Project_Id==a.Id)
-                .Where((a,b)=>b.Project_Id==projectid );
+            var data = DataAccess.DbContext.Db.Select<Tscript_Project, Tscript_Code>()
+                .LeftJoin((a, b) => b.Project_Id == a.Id)
+                .Where((a, b) => b.Project_Id == projectid);
 
             if (!string.IsNullOrEmpty(keyword))
             {
                 data = data.Where((a, b) => a.Name.Contains(keyword) || b.Device.Contains(keyword));
             }
 
-            if (status !=CodeStatus.全选)
+            if (status != CodeStatus.全选)
             {
-                data = data.Where((a, b) => b.Status==(int)status);
+                data = data.Where((a, b) => b.Status == (int)status);
             }
 
             page.TotalCount = (int)data.Count();
 
 
             var list = data.Page(page.PageIndex, page.PageSize)
-                .OrderBy((a,b)=>b.Id)
-                .ToList((a,b)=>new { 
-                    
-                    ProjectName= a.Name,
+                .OrderBy((a, b) => b.Id)
+                .ToList((a, b) => new
+                {
+
+                    ProjectName = a.Name,
                     b.Id,
                     b.Activation,
                     b.Agent,
@@ -67,7 +80,7 @@ namespace Victory.Script.WebApp.Controllers
                     b.Status,
                     b.Type,
                     b.Project_Id
-            });
+                });
             return SuccessResultList(list, page);
         }
 
@@ -113,7 +126,7 @@ namespace Victory.Script.WebApp.Controllers
 
         [HttpPost]
         [Permission(PowerName = "批量生成激活码")]
-        public IActionResult BatchAdd(int projectid,int count, CodeType type, int agent=0)
+        public IActionResult BatchAdd(int projectid, int count, CodeType type, int agent = 0)
         {
             List<Tscript_Code> list = new List<Tscript_Code>();
 
@@ -141,7 +154,7 @@ namespace Victory.Script.WebApp.Controllers
                 return SuccessMessage("添加成功！");
             }
             return FailMessage("添加失败");
-       
+
         }
 
         [Permission(PowerName = "生成激活码")]
@@ -154,13 +167,60 @@ namespace Victory.Script.WebApp.Controllers
 
 
 
-        [Permission(PowerName = "导出激活码")]
-        [HttpPost]
-        public IActionResult ExportCode()
+        [HttpGet]
+        public async Task<IActionResult> ExportCode(CodeStatus status, int projectid, string keyword)
         {
-            string url = string.Empty;
+        
 
-            return SuccessResult(url);
+            var data = DataAccess.DbContext.Db.Select<Tscript_Project, Tscript_Code>()
+               .LeftJoin((a, b) => b.Project_Id == a.Id)
+               .Where((a, b) => b.Project_Id == projectid);
+
+            if (!string.IsNullOrEmpty(keyword))
+            {
+                data = data.Where((a, b) => a.Name.Contains(keyword) || b.Device.Contains(keyword));
+            }
+
+            if (status != CodeStatus.全选)
+            {
+                data = data.Where((a, b) => b.Status == (int)status);
+            }
+
+            var list = data.OrderBy((a, b) => b.Id)
+                .ToList((a, b) => new CodeModel
+                {
+                    Id = b.Id,
+                    ProjectName = a.Name,
+                    Activation = b.Activation,
+                    Project_Id = b.Project_Id,
+                    Code = b.Code,
+                    Expiration = b.Expiration,
+                    Status = b.Status,
+                    Type = b.Type,
+                    Createtime = b.Createtime,
+                });
+
+            string ename = DateTime.Now.ToString("yyyyMMddHHmmss") + "_" + projectid + ".xlsx";
+            IExporter exporter = new ExcelExporter();
+
+
+  
+            string dirpath  = _hostingEnvironment.WebRootPath + "/" + projectid + "/" ;
+            if (!Directory.Exists(dirpath))
+            {
+                Directory.CreateDirectory(dirpath);
+            }
+
+           var filename = dirpath+ ename;
+
+
+            var result = await exporter.Export(ename, list);
+
+
+            return null;
+           // return File(result, @"application/ms-excel", ename);
+
+           
         }
 
 
@@ -172,13 +232,13 @@ namespace Victory.Script.WebApp.Controllers
         {
 
             var data = DataAccess.DbContext.Db.Select<Tscript_Project>();
-              
+
             if (!string.IsNullOrEmpty(keyword))
             {
                 data = data.Where((a) => a.Name.Contains(keyword));
             }
 
-            var list = data .OrderBy((a) => a.Id)
+            var list = data.OrderBy((a) => a.Id)
                 .ToList();
             return SuccessResultList(list);
         }

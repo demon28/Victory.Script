@@ -202,7 +202,7 @@ Near
 
                     <div class="card-footer clearfix pull-right " style="margin-right:30px;margin-top:30px;margin-bottom:30px" id="div_page">
 
-                        <el-pagination @@current-change="Init(pageModel.pageIndex)"
+                        <el-pagination @@current-change="InitCode(pageModel.pageIndex)"
                                        :current-page.sync="pageModel.pageIndex"
                                        :page-size="pageModel.pageSize"
                                        background
@@ -725,6 +725,31 @@ Near
                 },
                 Export() {
 
+                    var url = `/ProjectCode/ExportCode?projectid=${self.projectId}&status=${self.keystatus}&keyword=${self.keywork}`
+
+                    window.location.href = url;
+
+
+                    //MyAjax({
+                    //    url: "/ProjectCode/ExportCode",
+                    //    type: "Get",
+                    //    showloading: false,
+                    //    data: {
+                    //        projectid: self.projectId,
+                    //        status: self.keystatus,
+                    //        keyword: self.keywork,
+                    //    },
+                    //    success: function (result) {
+
+                    //        // console.log(JSON.stringify(result));
+
+                    //        if (!result.Success) {
+
+                    //            self.$message.error(result.Message);
+                    //            return;
+                    //        }
+                    //    }
+                    //})
                 },
                 StatusChange() {
                     self.InitCode(index);
