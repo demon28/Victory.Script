@@ -57,12 +57,12 @@ namespace Victory.Script.WebApp.WebApi
             data.PhoneType = phoneType;
             data.Status =(int) CodeStatus.已使用;
 
-            if (da.Update(data)>0)
+            if (da.Update(data)<1)
             {
-                return SuccessResult("激活成功！感谢您的使用！");
+                return FailMessage("激活失败！服务器故障！请联系管理员！");
             }
-
-            return FailMessage("激活失败！服务器故障！请联系管理员！");
+       
+            return SuccessResult("激活成功！感谢您的使用！");
         }
 
     }
