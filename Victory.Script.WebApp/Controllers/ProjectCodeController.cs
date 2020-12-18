@@ -79,7 +79,9 @@ namespace Victory.Script.WebApp.Controllers
                     b.Expiration,
                     b.Status,
                     b.Type,
-                    b.Project_Id
+                    b.Project_Id,
+                    b.PhoneType,
+                    b.Remarks
                 });
             return SuccessResultList(list, page);
         }

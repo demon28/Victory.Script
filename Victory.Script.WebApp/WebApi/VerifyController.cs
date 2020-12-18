@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -23,10 +24,24 @@ namespace Victory.Script.WebApp.WebApi
         /// <param name="code"></param>
         /// <param name="device"></param>
         /// <returns></returns>
-        [WebApiFilter]
+   
         [HttpGet]
-        public IActionResult Activate(int projectId, string code,string device,string phoneType)
+        public IActionResult Activate(int projectId, string code,string device,string phoneType,string signKey)
         {
+
+
+            StringBuilder build = new StringBuilder();
+            build.Append(projectId);
+            build.Append(code);
+            build.Append(device);
+            build.Append(phoneType);
+
+
+             string sign=Core.Encrypt.Md5.Encrypt32(build.ToString());
+            if (sign!= signKey)
+            {
+                return FailMessage("激活失败！前面验证不正确！");
+            }
 
             Tscript_Code_Da da = new Tscript_Code_Da();
 
